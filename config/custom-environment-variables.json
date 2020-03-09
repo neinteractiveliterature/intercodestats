@@ -1,0 +1,5 @@
+{
+    "app": {
+        "dbURL": "DATABASE_URL"
+    }
+}

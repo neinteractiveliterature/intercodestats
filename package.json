@@ -1,0 +1,18 @@
+{
+  "name": "intercodestats",
+  "version": "1.0.0",
+  "description": "Stats collection for intercode2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dave Kapell",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.0",
+    "config": "^3.3.0",
+    "parse-database-url": "^0.3.0",
+    "pg": "^7.18.2",
+    "underscore": "^1.9.2"
+  }
+}
