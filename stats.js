@@ -22,6 +22,7 @@ const conNames = [
     'Intercon R',
     'Intercon S',*/
     'Intercon T',
+    'Intercon U',
 ];
 
 function end(err, result){
@@ -36,6 +37,7 @@ function end(err, result){
 const output = {};
 
 async.eachSeries(conNames, function(conName, cb){
+    console.log('working on ' + conName);
     getConventionId(conName, function(err, conId){
         if (err) { return cb(err); }
         async.parallel({
@@ -113,12 +115,12 @@ function getCountedSlots (conId, cb){
     getEvents(conId, function(err, events){
         if (err) { return cb(err); }
         for (const event of events){
-            const reg_policy = JSON.parse(event.registration_policy);
+            const reg_policy = event.registration_policy;
             const buckets = reg_policy.buckets;
             let size = 0;
             let npcSize = 0;
             for(const bucket of buckets){
-                //console.log(event.title + ': ' + bucket.name + ': ' + bucket.not_counted + ': ' + bucket.total_slots + ': ' + event.runCount);
+                console.log(event.title + ': ' + bucket.name + ': ' + bucket.not_counted + ': ' + bucket.total_slots + ': ' + event.runCount);
                 if (bucket.not_counted !== true){
                     output.slots += (bucket.total_slots * event.data.runCount);
                     output.slotHours += (bucket.total_slots * event.data.runCount * (event.length_seconds / (60*60)));
@@ -207,7 +209,7 @@ function getEarlySignups(conId, cb){
     }, function(err, result){
         if (err) { return cb(err); }
         for (const signup of result.signups){
-            if (signup.bucket.match(/^npc/i)){
+            if (signup.bucket.match(/^npc/i) && signup.state === 'confirmed'){
                 const category = categorizeSignup(signup, result.schedule);
                 if (!_.has(earlySignups, category)){
                     earlySignups[category] = 0;
@@ -248,7 +250,7 @@ function getLarpSignups(conId, cb){
         if (err) { return cb(err); }
         const signups = result.rows.map(signup => {
             if (signup.bucket_key){
-                const reg_policy = JSON.parse(signup.registration_policy);
+                const reg_policy = signup.registration_policy;
                 const buckets = reg_policy.buckets;
                 const bucket = _.findWhere(buckets, {key: signup.bucket_key});
                 if(bucket){
@@ -269,8 +271,7 @@ function getSignupSchedule(conId, cb){
     const select = 'select maximum_event_signups from conventions where id = $1';
     database.query(select, [conId], function(err, result){
         if (err) { return cb(err); }
-        const signupJson = JSON.parse(result.rows[0].maximum_event_signups);
-        cb(null, signupJson.timespans);
+        cb(null, result.rows[0].maximum_event_signups.timespans);
     });
 }
 
